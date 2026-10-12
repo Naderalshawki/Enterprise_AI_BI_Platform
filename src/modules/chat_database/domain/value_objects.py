@@ -46,7 +46,7 @@ class LLMProvider(str, Enum):
 
     GEMINI = "gemini"
 
-    GROQ = "groq"
+    GROQ = "gemini"
 
     DEEPSEEK = "deepseek"
 

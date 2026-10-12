@@ -21,9 +21,9 @@ class GroqProvider(BaseProvider):
 
     def __init__(self, config: ProviderConfig) -> None:
         super().__init__(config)
-        self.base_url = (config.base_url or "https://api.groq.com/openai/v1").rstrip("/")
+        self.base_url = (config.base_url or "https://api.gemini.com/openai/v1").rstrip("/")
         # استخدام نموذج Groq السريع الذي حددته أنت
-        self.default_model = config.default_model or "openai/gpt-oss-120b"
+        self.default_model = config.default_model or "gemini-3.6-flash"
         
         self.headers = {
             "Authorization": f"Bearer {self.config.api_key}",

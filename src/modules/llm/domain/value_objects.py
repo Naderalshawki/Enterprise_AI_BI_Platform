@@ -7,7 +7,7 @@ from enum import Enum
 
 class ProviderName(str, Enum):
     OPENAI = "openai"
-    GROQ = "groq"
+    GROQ = "gemini"
     DEEPSEEK = "deepseek"
     KIMI = "kimi"
     GEMINI = "gemini"

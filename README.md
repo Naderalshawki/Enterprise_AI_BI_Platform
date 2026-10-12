@@ -996,7 +996,7 @@ APP_ENV=development
 
 DATABASE_URL=your_supabase_postgresql_url
 
-LLM_PROVIDER=groq
+LLM_PROVIDER=gemini
 
 GROQ_API_KEY=your_api_key
 

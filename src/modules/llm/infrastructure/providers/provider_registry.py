@@ -17,9 +17,9 @@ PROVIDERS = {
         "provider": OpenAICompatibleProvider,
         "base_url": "https://api.openai.com/v1",
     },
-    "groq": {
+    "gemini": {
         "provider": OpenAICompatibleProvider,
-        "base_url": "https://api.groq.com/openai/v1",
+        "base_url": "https://api.gemini.com/openai/v1",
     },
     "deepseek": {
         "provider": OpenAICompatibleProvider,

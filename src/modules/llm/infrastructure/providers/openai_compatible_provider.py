@@ -90,7 +90,7 @@ class OpenAICompatibleProvider(BaseProvider):
         ).lower()
         metadata = getattr(request, "metadata", None) or {}
         is_groq_gpt_oss_sql = (
-            provider_name == "groq"
+            provider_name == "gemini"
             and request.model.startswith("openai/gpt-oss")
             and metadata.get("task") == "sql_generation"
         )
