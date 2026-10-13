@@ -1,3 +1,5 @@
+
+import logging
 from typing import AsyncGenerator
 
 from google import genai
@@ -35,6 +37,9 @@ from src.modules.llm.infrastructure.mappers.response_mapper import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class GeminiProvider(BaseProvider):
     """
     Google Gemini Provider
@@ -69,15 +74,28 @@ class GeminiProvider(BaseProvider):
             request,
         )
 
-        response = await self.client.aio.models.generate_content(
-            model=request.model,
-            contents=prompt,
+        logger.info(
+            "[Gemini] Generating content | model=%s",
+            request.model,
         )
 
-        return ResponseMapper.from_gemini(
-            response=response,
-            model=request.model,
-        )
+        try:
+            response = await self.client.aio.models.generate_content(
+                model=request.model,
+                contents=prompt,
+            )
+
+            return ResponseMapper.from_gemini(
+                response=response,
+                model=request.model,
+            )
+
+        except Exception:
+            logger.exception(
+                "[Gemini] Generation failed | model=%s",
+                request.model,
+            )
+            raise
 
     # ==========================================================
     # Stream
@@ -92,19 +110,29 @@ class GeminiProvider(BaseProvider):
             request,
         )
 
-        stream = await self.client.aio.models.generate_content_stream(
-            model=request.model,
-            contents=prompt,
+        logger.info(
+            "[Gemini] Starting stream | model=%s",
+            request.model,
         )
 
-        async for chunk in stream:
+        try:
+            stream = await (
+                self.client.aio.models.generate_content_stream(
+                    model=request.model,
+                    contents=prompt,
+                )
+            )
 
-            if getattr(
-                chunk,
-                "text",
-                None,
-            ):
-                yield chunk.text
+            async for chunk in stream:
+                if getattr(chunk, "text", None):
+                    yield chunk.text
+
+        except Exception:
+            logger.exception(
+                "[Gemini] Stream failed | model=%s",
+                request.model,
+            )
+            raise
 
     # ==========================================================
     # Vision
@@ -120,18 +148,31 @@ class GeminiProvider(BaseProvider):
             mime_type=request.mime_type,
         )
 
-        response = await self.client.aio.models.generate_content(
-            model=request.model,
-            contents=[
-                image_part,
-                request.prompt,
-            ],
+        logger.info(
+            "[Gemini] Processing vision request | model=%s",
+            request.model,
         )
 
-        return ResponseMapper.from_gemini_vision(
-            response=response,
-            model=request.model,
-        )
+        try:
+            response = await self.client.aio.models.generate_content(
+                model=request.model,
+                contents=[
+                    image_part,
+                    request.prompt,
+                ],
+            )
+
+            return ResponseMapper.from_gemini_vision(
+                response=response,
+                model=request.model,
+            )
+
+        except Exception:
+            logger.exception(
+                "[Gemini] Vision request failed | model=%s",
+                request.model,
+            )
+            raise
 
     # ==========================================================
     # Embeddings
@@ -142,16 +183,29 @@ class GeminiProvider(BaseProvider):
         request: EmbeddingRequest,
     ) -> EmbeddingResponse:
 
-        response = await self.client.aio.models.embed_content(
-            **RequestMapper.to_gemini_embedding_request(
-                request,
-            )
+        logger.info(
+            "[Gemini] Generating embeddings | model=%s",
+            request.model,
         )
 
-        return ResponseMapper.from_gemini_embedding(
-            response=response,
-            model=request.model,
-        )
+        try:
+            response = await self.client.aio.models.embed_content(
+                **RequestMapper.to_gemini_embedding_request(
+                    request,
+                )
+            )
+
+            return ResponseMapper.from_gemini_embedding(
+                response=response,
+                model=request.model,
+            )
+
+        except Exception:
+            logger.exception(
+                "[Gemini] Embedding generation failed | model=%s",
+                request.model,
+            )
+            raise
 
     # ==========================================================
     # Models
@@ -161,27 +215,42 @@ class GeminiProvider(BaseProvider):
         self,
     ) -> list[ModelInfo]:
 
-        response = await self.client.aio.models.list()
+        logger.info(
+            "[Gemini] Listing available models"
+        )
 
-        models = []
+        try:
+            response = await self.client.aio.models.list()
 
-        for model in response:
+            models = []
 
-            models.append(
-                ModelInfo(
-                    provider=ProviderName.GEMINI,
-                    model_name=model.name,
-                    supports_stream=True,
-                    supports_json=True,
-                    context_window=getattr(
-                        model,
-                        "input_token_limit",
-                        None,
-                    ),
+            for model in response:
+                models.append(
+                    ModelInfo(
+                        provider=ProviderName.GEMINI,
+                        model_name=model.name,
+                        supports_stream=True,
+                        supports_json=True,
+                        context_window=getattr(
+                            model,
+                            "input_token_limit",
+                            None,
+                        ),
+                    )
                 )
+
+            logger.info(
+                "[Gemini] Models retrieved | count=%d",
+                len(models),
             )
 
-        return models
+            return models
+
+        except Exception:
+            logger.exception(
+                "[Gemini] Failed to list models"
+            )
+            raise
 
     # ==========================================================
     # Health
@@ -191,20 +260,30 @@ class GeminiProvider(BaseProvider):
         self,
     ) -> bool:
 
+        model = self.config.default_model
+
         try:
+            logger.info(
+                "[Gemini] Health check | model=%s",
+                model,
+            )
 
             await self.client.aio.models.generate_content(
-                model=self.config.default_model,
+                model=model,
                 contents="Hello",
+            )
+
+            logger.info(
+                "[Gemini] Health check succeeded | model=%s",
+                model,
             )
 
             return True
 
-        except Exception as e:
-
-            print(
-                "Gemini Health Error:",
-                e,
+        except Exception:
+            logger.exception(
+                "[Gemini] Health check failed | model=%s",
+                model,
             )
 
             return False

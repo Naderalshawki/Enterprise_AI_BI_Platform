@@ -246,11 +246,12 @@ PROVIDER_CONFIG = {
         "requires_api_key": True,
     },
 
+
     ProviderName.GEMINI: {
-        "env": "GEMINI_API_KEY",
-        "model_env": "GEMINI_MODEL",
-        "default_model": "gemini-3.6-flash",
-        "requires_api_key": True,
+    "env": "GEMINI_API_KEY",
+    "model_env": "GEMINI_MODEL",
+    "default_model": "gemini-3.8-flash",
+    "requires_api_key": True,
     },
 
     ProviderName.OPENROUTER: {
