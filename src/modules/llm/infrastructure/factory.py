@@ -1,4 +1,3 @@
-
 from src.modules.llm.domain.interfaces import LLMProvider
 from src.modules.llm.domain.value_objects import ProviderName
 
@@ -40,7 +39,6 @@ class ProviderFactory:
     def providers(self) -> dict[ProviderName, LLMProvider]:
         return self._providers
 
-<<<<<<< HEAD
     # ==========================================================
     # Exists
     # ==========================================================
@@ -49,9 +47,4 @@ class ProviderFactory:
         self,
         provider: ProviderName,
     ) -> bool:
-
         return provider in self._providers
-=======
-    def exists(self, provider: ProviderName) -> bool:
-        return ProviderName(provider) in self._providers
->>>>>>> c81e011 (Prepare AI BI Platform for deployment)
