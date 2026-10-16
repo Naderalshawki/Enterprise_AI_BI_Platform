@@ -228,7 +228,7 @@ PROVIDER_CONFIG = {
     ProviderName.GROQ: {
         "env": "GROQ_API_KEY",
         "model_env": "GROQ_MODEL",
-        "default_model": "llama-3.1-8b-instant",
+        "default_model": "llama-3.1-70b-versatile",
         "requires_api_key": True,
     },
 
@@ -250,7 +250,7 @@ PROVIDER_CONFIG = {
     ProviderName.GEMINI: {
     "env": "GEMINI_API_KEY",
     "model_env": "GEMINI_MODEL",
-    "default_model": "llama-3.1-8b-instant",
+    "default_model": "llama-3.1-70b-versatile",
     "requires_api_key": True,
     },
 
