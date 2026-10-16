@@ -22,11 +22,11 @@ class SchemaFormatter:
     def __init__(
         self,
         *,
-        include_indexes: bool = True,
+        include_indexes: bool = False,
         include_row_estimates: bool = True,
         include_sample_values: bool = True,
-        max_sample_values: int = 12,
-        max_sample_value_length: int = 160,
+        max_sample_values: int = 3,
+        max_sample_value_length: int = 50,
     ) -> None:
         self.include_indexes = include_indexes
         self.include_row_estimates = include_row_estimates
