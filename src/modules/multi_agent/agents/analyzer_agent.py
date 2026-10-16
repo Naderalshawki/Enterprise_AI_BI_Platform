@@ -24,7 +24,7 @@ class AnalyzerAgent(BaseAgent):
     Environment variables:
         MODEL_PROVIDER=groq
         LLM_PROVIDER=groq
-        GROQ_MODEL=openai/gpt-oss-20b
+        GROQ_MODEL=llama-3.1-8b-instant
 
     Provider priority:
         1. Explicit default_provider passed to the constructor.
@@ -33,7 +33,7 @@ class AnalyzerAgent(BaseAgent):
         4. Groq, if available in ProviderName.
     """
 
-    DEFAULT_MODEL = "openai/gpt-oss-20b"
+    DEFAULT_MODEL = "llama-3.1-8b-instant"
 
     def __init__(
         self,
