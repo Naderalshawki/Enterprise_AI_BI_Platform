@@ -69,7 +69,7 @@ class Planner:
 
     DEFAULT_MODEL = os.getenv(
     "GROQ_MODEL",
-    "openai/gpt-oss-20b",
+    "llama-3.1-8b-instant",
 )
     MAX_TASKS = 10
     # ==========================================================
