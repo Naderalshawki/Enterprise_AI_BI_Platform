@@ -69,7 +69,7 @@ class Planner:
 
     DEFAULT_MODEL = os.getenv(
     "GROQ_MODEL",
-    "llama-3.1-8b-instant",
+    "llama-3.1-70b-versatile",
 )
     MAX_TASKS = 10
     # ==========================================================
