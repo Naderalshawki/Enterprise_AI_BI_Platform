@@ -16,7 +16,7 @@ class ReporterAgent(BaseAgent):
         self, 
         llm_service: LLMService, 
         default_provider: ProviderName = ProviderName.GROQ,  
-        default_model: str = "llama-3.1-8b-instant"# التعديل هنا: استخدمنا النموذج المضمون والشغال لديك
+        default_model: str = "llama-3.1-70b-versatile"# التعديل هنا: استخدمنا النموذج المضمون والشغال لديك
     ):
         super().__init__(llm_service)
         self._provider = default_provider
