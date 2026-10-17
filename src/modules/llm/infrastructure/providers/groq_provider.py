@@ -35,7 +35,7 @@ class GroqProvider(BaseProvider):
         ).rstrip("/")
 
         self.default_model = (
-            config.default_model or "llama-3.3-70b-versatile"
+            config.default_model or "openai/gpt-oss-20b"
         )
 
         self.headers = {
