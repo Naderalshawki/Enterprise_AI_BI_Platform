@@ -228,7 +228,7 @@ PROVIDER_CONFIG = {
     ProviderName.GROQ: {
         "env": "GROQ_API_KEY",
         "model_env": "GROQ_MODEL",
-        "default_model": "openai/gpt-oss-120b",
+        "default_model": "llama-3.3-70b-versatile",
         "requires_api_key": True,
     },
 
@@ -250,7 +250,7 @@ PROVIDER_CONFIG = {
     ProviderName.GEMINI: {
     "env": "GEMINI_API_KEY",
     "model_env": "GEMINI_MODEL",
-    "default_model": "openai/gpt-oss-120b",
+    "default_model": "llama-3.3-70b-versatile",
     "requires_api_key": True,
     },
 
