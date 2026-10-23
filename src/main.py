@@ -39,47 +39,48 @@ from src.modules.rag.config.settings import rag_settings
 
 
 # ==========================================================
-# Query Engine Router
+# Lazy Loading Proxy (تأخير تحميل النماذج الثقيلة)
 # ==========================================================
+class LazyQueryEngine:
+    """
+    هذا الكلاس يمنع تحميل النماذج الثقيلة في الذاكرة عند الإقلاع.
+    لن يتم استدعاء create_query_engine إلا عند أول طلب فعلي من المستخدم.
+    """
+    def __init__(self):
+        self._engine = None
 
-query_engine_router = create_query_engine_router(
-    create_query_engine()
-)
+    def _load_engine(self):
+        if self._engine is None:
+            print("⏳ Loading AI Query Engine on demand (Lazy Load)...")
+            self._engine = create_query_engine()
+        return self._engine
+
+    def __getattr__(self, item):
+        # توجيه أي أوامر للمحرك الحقيقي بعد التأكد من تحميله
+        return getattr(self._load_engine(), item)
+
+# تمرير المحرك الوهمي الذي لن يستهلك الذاكرة عند الإقلاع
+lazy_engine = LazyQueryEngine()
+query_engine_router = create_query_engine_router(lazy_engine)
 
 
 # ==========================================================
 # Application Lifespan
 # ==========================================================
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     إدارة دورة حياة تطبيق FastAPI.
-
-    Startup:
-        تشغيل التطبيق وتجهيز البيئة.
-
-    Shutdown:
-        إغلاق موارد قاعدة البيانات بشكل آمن.
     """
-
-    # ------------------------------------------------------
     # Startup
-    # ------------------------------------------------------
-
     yield
-
-    # ------------------------------------------------------
     # Shutdown
-    # ------------------------------------------------------
-
     await close_database()
 
 
 # ==========================================================
 # FastAPI Application
 # ==========================================================
-
 app = FastAPI(
     title="AI Business Intelligence & RAG Platform",
     description=(
@@ -90,11 +91,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ==========================================================
-# CORS Middleware (للسماح باتصال الواجهة بالسيرفر)
-# ==========================================================
 
-# قراءة إعدادات RAG للـ Origins ودمجها مع السماح العام
+# ==========================================================
+# CORS Middleware
+# ==========================================================
 rag_origins = [o.strip() for o in rag_settings.allowed_origins.split(",") if o.strip()]
 allowed_origins = ["*"] if not rag_origins else rag_origins + ["*"]
 
@@ -110,8 +110,6 @@ app.add_middleware(
 # ==========================================================
 # Static Files & RAG UI
 # ==========================================================
-
-# تجهيز مجلد الملفات الثابتة (Static) الخاص بواجهة الـ RAG
 static_dir = Path(__file__).parent / "modules" / "rag" / "static"
 if static_dir.exists():
     app.mount("/rag_static", StaticFiles(directory=str(static_dir)), name="rag_static")
@@ -128,60 +126,29 @@ def rag_ui():
 # ==========================================================
 # Routers
 # ==========================================================
-
-# ----------------------------------------------------------
-# LLM
-# ----------------------------------------------------------
 app.include_router(llm_router)
-
-# ----------------------------------------------------------
-# Chat Database
-# ----------------------------------------------------------
 app.include_router(chat_database_router)
-
-# ----------------------------------------------------------
-# Query Engine
-# ----------------------------------------------------------
 app.include_router(query_engine_router)
-
-# ----------------------------------------------------------
-# Multi-Agent BI
-# ----------------------------------------------------------
 app.include_router(bi_agent_router)
-
-# ----------------------------------------------------------
-# Document Intelligence (RAG)
-# ----------------------------------------------------------
-# دمج راوتر رفع الملفات والبحث (prefix يمنع تعارض المسارات)
-# ----------------------------------------------------------
-# Document Intelligence (RAG)
-# ----------------------------------------------------------
 app.include_router(
     rag_router, 
     tags=["RAG & Document Intelligence"]
-
 )
 
 
 # ==========================================================
 # Root Endpoint
 # ==========================================================
-
-@app.get(
-    "/",
-    tags=["System"],
-)
+@app.get("/", tags=["System"])
 async def root(request: Request):
-    """
-    نقطة الدخول الرئيسية للنظام.
-    """
+    """نقطة الدخول الرئيسية للنظام."""
     return {
         "message": "AI BI Platform is running smoothly.",
         "status": "ok",
         "modules_loaded": [
             "LLM",
             "ChatDatabase",
-            "QueryEngine",
+            "QueryEngine (Lazy Loaded)",
             "Multi-Agent",
             "RAG (Document Intelligence)"
         ],
@@ -190,4 +157,3 @@ async def root(request: Request):
             "rag_ui": "/rag_ui"
         }
     }
-
